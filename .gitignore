@@ -1,0 +1,21 @@
+.env# environment
+.env
+
+# Go
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# logs
+*.log
+
+# backups
+*.bak
+
+# IDE/Editor (por si acaso)
+.vscode/
+.idea/
+
