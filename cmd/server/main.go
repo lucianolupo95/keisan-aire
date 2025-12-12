@@ -22,7 +22,7 @@ func main() {
 
 	fmt.Println("🚀 Keisan Aire iniciado en modo:", cfg.Env)
 
-	// 🔌 Conexión a PostgreSQL
+	// Conexión a PostgreSQL
 	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal("Error al abrir DB:", err)
