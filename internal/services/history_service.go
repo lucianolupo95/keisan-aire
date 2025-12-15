@@ -1,9 +1,9 @@
 package services
 
 import (
-	"time"
-
+	"keisan-aire/internal/marketdata"
 	"keisan-aire/internal/repositories"
+	"time"
 )
 
 type HistoricalPrice struct {
@@ -15,19 +15,19 @@ type HistoricalPrice struct {
 	Volume    float64
 }
 
-// ⚠️ Por ahora mock: en la próxima instrucción conectamos API real
-func FetchHistoricalPrices(symbol string, days int) ([]HistoricalPrice, error) {
-	var prices []HistoricalPrice
+func FetchHistoricalPrices(symbol string) ([]HistoricalPrice, error) {
+	provider := marketdata.NewStooqProvider(nil)
 
-	now := time.Now()
-	for i := days; i > 0; i-- {
+	candles, err := provider.FetchDaily(symbol)
+	if err != nil {
+		return nil, err
+	}
+
+	prices := make([]HistoricalPrice, 0, len(candles))
+	for _, c := range candles {
 		prices = append(prices, HistoricalPrice{
-			Timestamp: now.AddDate(0, 0, -i),
-			Open:      100 + float64(i),
-			High:      101 + float64(i),
-			Low:       99 + float64(i),
-			Close:     100 + float64(i)/2,
-			Volume:    1000000,
+			Timestamp: c.Timestamp,
+			Close:     c.Close,
 		})
 	}
 
@@ -49,7 +49,7 @@ func LoadHistoricalIfNeeded(
 		return nil
 	}
 
-	history, err := FetchHistoricalPrices(symbol, 700)
+	history, err := FetchHistoricalPrices(symbol)
 	if err != nil {
 		return err
 	}

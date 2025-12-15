@@ -19,6 +19,21 @@ import (
 	"keisan-aire/internal/services"
 )
 
+func withCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// --- Init ---
 	logging.Init()
@@ -139,9 +154,10 @@ func main() {
 		json.NewEncoder(w).Encode(result)
 	})
 
-	// --- Server ---
-	fmt.Printf("Servidor escuchando en http://localhost:%s\n", cfg.Port)
-	if err := http.ListenAndServe(":"+cfg.Port, nil); err != nil {
+	handler := withCORS(http.DefaultServeMux)
+
+	if err := http.ListenAndServe(":"+cfg.Port, handler); err != nil {
 		log.Fatal(err)
 	}
+
 }
