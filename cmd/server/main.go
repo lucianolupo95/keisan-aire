@@ -73,8 +73,14 @@ func main() {
 
 	// --- Analysis ---
 	http.HandleFunc("/analysis/", func(w http.ResponseWriter, r *http.Request) {
+
 		symbol := r.URL.Path[len("/analysis/"):]
 		assetID := 1 // temporal
+		// --- Carga histórica automática ---
+		if err := services.LoadHistoricalIfNeeded(repo, assetID, symbol); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		// --- Datos reales desde DB ---
 		pricesShort, err := repo.GetLastCloses(assetID, 100)
